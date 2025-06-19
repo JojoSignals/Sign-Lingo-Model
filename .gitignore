@@ -11,7 +11,8 @@ env/
 *.tflite
 
 # 📦 Archivos de entrenamiento pesados
-models/
+/models/*
+!/models/.keep
 checkpoints/
 *.ckpt
 *.index
