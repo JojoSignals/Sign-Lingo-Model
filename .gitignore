@@ -1,0 +1,52 @@
+# 🚫 Entornos virtuales
+.venv/
+venv/
+ENV/
+env/
+
+# 🧠 Archivos de modelos
+*.h5
+*.keras
+*.pb
+*.tflite
+
+# 📦 Archivos de entrenamiento pesados
+models/
+checkpoints/
+*.ckpt
+*.index
+*.data-*
+
+# 💾 Datos y resultados locales
+data/raw/
+data/fine_tune_full/
+data/fine_tune_full_balanced/
+data/augmented/
+logs/
+__pycache__/
+*.pkl
+*.npy
+*.npz
+
+# 🖼 Imágenes generadas temporalmente
+*.jpg
+*.jpeg
+*.png
+
+# ⚙️ Archivos de sistema/editor
+.DS_Store
+.idea/
+*.swp
+*.swo
+
+# 🐍 Archivos compilados de Python
+*.pyc
+*.pyo
+*.pyd
+
+# 📈 Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# 🔐 Claves/API tokens
+*.env
+.env.*
