@@ -3,7 +3,7 @@ import cv2
 from collections import deque, Counter
 import numpy as np
 from cvzone.HandTrackingModule import HandDetector
-from tensorflow.keras.models import load_model
+from keras.models import load_model
 
 # Inicialización
 cap = cv2.VideoCapture(0)

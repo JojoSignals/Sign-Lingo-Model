@@ -1,5 +1,5 @@
-from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras import layers, models
+from keras.applications import MobileNetV2
+from keras import layers, models
 
 def create_asl_model(input_shape=(300, 300, 3), num_classes=26):
     base_model = MobileNetV2(include_top=False, weights='imagenet', input_shape=input_shape)

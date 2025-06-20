@@ -1,8 +1,8 @@
 import os
 import numpy as np
 from sklearn.metrics import classification_report
-from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras.models import load_model
+from keras.src.legacy.preprocessing.image import ImageDataGenerator
 
 # Configuración
 DATA_DIR = "data/raw/Data"

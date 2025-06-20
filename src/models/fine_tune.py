@@ -1,7 +1,7 @@
 import os
-from tensorflow.keras.models import load_model
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras.models import load_model
+from keras.optimizers import Adam
+from keras.src.legacy.preprocessing.image import ImageDataGenerator
 
 # Configuración
 DATA_DIR = "data/raw/fine_tune" 
