@@ -6,13 +6,11 @@ env/
 
 # 🧠 Archivos de modelos
 *.h5
-*.keras
 *.pb
 *.tflite
 
 # 📦 Archivos de entrenamiento pesados
-/models/*
-!/models/.keep
+
 checkpoints/
 *.ckpt
 *.index
