@@ -6,7 +6,6 @@ env/
 
 # 🧠 Archivos de modelos
 *.h5
-*.pb
 *.tflite
 
 # 📦 Archivos de entrenamiento pesados
