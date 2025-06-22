@@ -16,16 +16,15 @@ IMAGE_SIZE = (300, 300)
 # Lista de clases: A-Z
 CLASSES = list(string.ascii_uppercase)
 
-# Cargar modelo una sola vez (para uso en API)
+# Cargar modelo y detector una sola vez (evita reinicios por exceso de memoria)
 model = load_model(MODEL_PATH)
-
+detector = HandDetector(maxHands=1)
 def preprocess_image(file) -> np.ndarray:
     """Detecta la mano en la imagen, la recorta y la ajusta al formato del modelo."""
     file.seek(0)
     file_bytes = np.asarray(bytearray(file.read()), dtype=np.uint8)
     img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-    detector = HandDetector(maxHands=1)
     imgSize = 300
     offset = 26
     imgWhite = np.ones((imgSize, imgSize, 3), np.uint8) * 255

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from src.inference.service import predict_letter, verify_letter
 
@@ -22,8 +22,13 @@ async def predict(file: UploadFile = File(...)):
     """
     Predice la letra de la imagen cargada.
     """
-    result = predict_letter(file.file)
-    return result
+    try:
+        result = predict_letter(file.file)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error interno en el servidor")
 
 @app.post("/api/v1/verify-letter")
 async def verify(
@@ -33,5 +38,17 @@ async def verify(
     """
     Verifica si la imagen corresponde a la letra esperada.
     """
-    result = verify_letter(file.file, expected_letter)
-    return result
+    try:
+        result = verify_letter(file.file, expected_letter)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error interno en el servidor")
+
+@app.get("/api/v1/health")
+def health_check():
+    """
+    Endpoint de salud para verificar si la API está viva.
+    """
+    return {"status": "ok"}
