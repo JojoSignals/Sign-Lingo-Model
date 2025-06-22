@@ -21,6 +21,7 @@ model = load_model(MODEL_PATH)
 detector = HandDetector(maxHands=1)
 def preprocess_image(file) -> np.ndarray:
     """Detecta la mano en la imagen, la recorta y la ajusta al formato del modelo."""
+    print("🟢 Entrando a preprocess_image")
     file.seek(0)
     file_bytes = np.asarray(bytearray(file.read()), dtype=np.uint8)
     img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
@@ -68,6 +69,7 @@ def preprocess_image(file) -> np.ndarray:
 
 def predict_letter(file) -> dict:
     """Predice la letra más probable de una imagen .jpg"""
+    print("🔵 Entrando a predict_letter")
     img_array = preprocess_image(file)
 
     # Generar imagen espejada horizontalmente

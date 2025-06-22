@@ -23,6 +23,7 @@ async def predict(file: UploadFile = File(...)):
     Predice la letra de la imagen cargada.
     """
     try:
+        print("⚙️ Recibiendo archivo:", file.filename)
         result = predict_letter(file.file)
         return result
     except ValueError as e:
