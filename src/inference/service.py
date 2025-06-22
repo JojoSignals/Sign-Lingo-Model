@@ -8,7 +8,7 @@ from cvzone.HandTrackingModule import HandDetector
 
 
 # Ruta al modelo entrenado
-MODEL_PATH = "models/asl_letters_finetuned.keras"
+MODEL_PATH = "models/asl_letters_finetuned_tf"
 
 # Tamaño esperado por el modelo
 IMAGE_SIZE = (300, 300)
@@ -69,8 +69,6 @@ def preprocess_image(file) -> np.ndarray:
 
 def predict_letter(file) -> dict:
     """Predice la letra más probable de una imagen .jpg"""
-    def predict_letter(file) -> dict:
-        """Predice la letra más probable de una imagen .jpg, evaluando también su versión espejada."""
     img_array = preprocess_image(file)
 
     # Generar imagen espejada horizontalmente

@@ -12,9 +12,10 @@ WORKDIR /app
 
 # Copiar dependencias
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar todo el proyecto
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
+
+# Copiar todo el proyecato
 COPY . .
 
 # Exponer el puerto por defecto de FastAPI

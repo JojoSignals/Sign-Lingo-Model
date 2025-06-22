@@ -17,7 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("api/v1/predict-letter")
+@app.post("/api/v1/predict-letter")
 async def predict(file: UploadFile = File(...)):
     """
     Predice la letra de la imagen cargada.
@@ -25,7 +25,7 @@ async def predict(file: UploadFile = File(...)):
     result = predict_letter(file.file)
     return result
 
-@app.post("api/v1/verify-letter")
+@app.post("/api/v1/verify-letter")
 async def verify(
         file: UploadFile = File(...),
         expected_letter: str = Form(...)

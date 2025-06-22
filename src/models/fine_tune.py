@@ -1,12 +1,13 @@
 import os
-from keras.models import load_model
-from keras.optimizers import Adam
-from keras.src.legacy.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.models import load_model
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 
 # Configuración
 DATA_DIR = "data/raw/fine_tune" 
 MODEL_ORIGINAL = "models/asl_letters_model.keras"
-MODEL_FINETUNED = "models/asl_letters_finetuned.keras"
+MODEL_FINETUNED = "models/asl_letters_finetuned_tf"
 IMAGE_SIZE = (300, 300)
 BATCH_SIZE = 16
 EPOCHS = 15
@@ -46,5 +47,5 @@ val_gen = datagen.flow_from_directory(
 model.fit(train_gen, validation_data=val_gen, epochs=EPOCHS)
 
 # Guardar modelo refinado
-model.save(MODEL_FINETUNED)
+model.save(MODEL_FINETUNED, save_format="tf")
 print(f"✅ Modelo ajustado guardado en: {MODEL_FINETUNED}")
