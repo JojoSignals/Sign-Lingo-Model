@@ -7,6 +7,10 @@ env/
 # 🧠 Archivos de modelos
 *.h5
 *.tflite
+# ⬇️ Permitir modelo entrenado en carpeta SavedModel
+!models/asl_letters_finetuned_tf/**
+!models/asl_letters_finetuned_tf/variables/**
+!models/asl_letters_finetuned_tf/assets/**
 
 # 📦 Archivos de entrenamiento pesados
 
