@@ -4,13 +4,20 @@ venv/
 ENV/
 env/
 
+# Ignora carpetas pesadas de raíz
+/data
+/models
+
+# Permite explícitamente src/models
+!src/models/
+
 # 🧠 Archivos de modelos
 *.h5
 *.tflite
 # ⬇️ Permitir modelo entrenado en carpeta SavedModel
-!models/asl_letters_finetuned_tf/**
-!models/asl_letters_finetuned_tf/variables/**
-!models/asl_letters_finetuned_tf/assets/**
+!models/letters/asl_letters_finetuned_tf/**
+!models/letters/asl_letters_finetuned_tf/variables/**
+!models/letters/asl_letters_finetuned_tf/assets/**
 
 # 📦 Archivos de entrenamiento pesados
 
@@ -18,7 +25,7 @@ checkpoints/
 *.ckpt
 *.index
 *.data-*
-!models/asl_letters_finetuned_tf/variables/variables.*
+!models/letters/asl_letters_finetuned_tf/variables/variables.*
 # 💾 Datos y resultados locales
 data/raw/
 data/fine_tune_full/

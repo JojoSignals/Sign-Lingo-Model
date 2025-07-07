@@ -1,14 +1,13 @@
-import numpy as np
-from keras.models import load_model
-from keras.preprocessing import image
-from PIL import Image, ImageOps
-import string
-import cv2
+import numpy as np, string, cv2, pickle, tempfile, os
 from cvzone.HandTrackingModule import HandDetector
+from tensorflow.keras.models import load_model
+import mediapipe as mp
 
-
+# ──────────────────────────────────────────────────────────────
+#  BLOCK A –  LETRAS  (imagen .jpg)                            │
+# ──────────────────────────────────────────────────────────────
 # Ruta al modelo entrenado
-MODEL_PATH = "models/asl_letters_finetuned_tf"
+MODEL_PATH = "models/letters/sign_model_v3_finetuned.keras"
 
 # Tamaño esperado por el modelo
 IMAGE_SIZE = (300, 300)
@@ -31,67 +30,54 @@ def preprocess_image(file) -> np.ndarray:
     imgWhite = np.ones((imgSize, imgSize, 3), np.uint8) * 255
 
     hands, img = detector.findHands(img)
-    if hands:
-        hand = hands[0]
-        x, y, w, h = hand['bbox']
-
-        imgH, imgW, _ = img.shape
-        x1 = max(0, x - offset)
-        y1 = max(0, y - offset)
-        x2 = min(imgW, x + w + offset)
-        y2 = min(imgH, y + h + offset)
-
-        imgCrop = img[y1:y2, x1:x2]
-        if imgCrop.size == 0:
-            raise ValueError("Recorte de mano fallido")
-
-        aspectRatio = (y2 - y1) / (x2 - x1)
-
-        if aspectRatio > 1:
-            k = imgSize / (y2 - y1)
-            wCal = int(k * (x2 - x1))
-            imgResize = cv2.resize(imgCrop, (wCal, imgSize))
-            wGap = int((imgSize - wCal) / 2)
-            imgWhite[:, wGap:wGap + wCal] = imgResize
-        else:
-            k = imgSize / (x2 - x1)
-            hCal = int(k * (y2 - y1))
-            imgResize = cv2.resize(imgCrop, (imgSize, hCal))
-            hGap = int((imgSize - hCal) / 2)
-            imgWhite[hGap:hGap + hCal, :] = imgResize
-
-        imgWhite = imgWhite / 255.0
-        img_array = np.expand_dims(imgWhite, axis=0)
-        return img_array
-    else:
+    if not hands:
         raise ValueError("No se detectó ninguna mano en la imagen")
+
+    hand = hands[0]
+    x, y, w, h = hand["bbox"]
+
+    imgH, imgW, _ = img.shape
+    x1 = max(0, x - offset)
+    y1 = max(0, y - offset)
+    x2 = min(imgW, x + w + offset)
+    y2 = min(imgH, y + h + offset)
+
+    imgCrop = img[y1:y2, x1:x2]
+    if imgCrop.size == 0:
+        raise ValueError("Recorte de mano fallido")
+
+    aspectRatio = (y2 - y1) / (x2 - x1)
+
+    if aspectRatio > 1:
+        k = imgSize / (y2 - y1)
+        wCal = int(k * (x2 - x1))
+        imgResize = cv2.resize(imgCrop, (wCal, imgSize))
+        wGap = int((imgSize - wCal) / 2)
+        imgWhite[:, wGap : wGap + wCal] = imgResize
+    else:
+        k = imgSize / (x2 - x1)
+        hCal = int(k * (y2 - y1))
+        imgResize = cv2.resize(imgCrop, (imgSize, hCal))
+        hGap = int((imgSize - hCal) / 2)
+        imgWhite[hGap : hGap + hCal, :] = imgResize
+
+    imgWhite = imgWhite / 255.0
+    return np.expand_dims(imgWhite, axis=0)
 
 
 def predict_letter(file) -> dict:
-    """Predice la letra más probable de una imagen .jpg"""
+    """Predice la letra más probable de una imagen .jpg (solo imagen original)."""
     print("🔵 Entrando a predict_letter")
     img_array = preprocess_image(file)
 
-    # Generar imagen espejada horizontalmente
-    mirrored_array = np.flip(img_array, axis=2)  # flip axis 2 = ancho
-
-    # Predecir ambas versiones
-    preds_original = model.predict(img_array)[0]
-    preds_mirrored = model.predict(mirrored_array)[0]
-
-    # Elegir la de mayor confianza global
-    if np.max(preds_original) >= np.max(preds_mirrored):
-        class_idx = np.argmax(preds_original)
-        confidence = float(preds_original[class_idx])
-    else:
-        class_idx = np.argmax(preds_mirrored)
-        confidence = float(preds_mirrored[class_idx])
-
+    preds = model.predict(img_array, verbose=0)[0]
+    class_idx = int(np.argmax(preds))
+    confidence = float(preds[class_idx])
     predicted_letter = CLASSES[class_idx]
 
     return {
         "predicted_letter": predicted_letter,
-        "confidence": confidence
+        "confidence": confidence,
     }
 
 
@@ -102,7 +88,53 @@ def verify_letter(file, expected_letter: str) -> dict:
 
     return {
         "expected_letter": expected_letter.upper(),
-        "predicted_letter": result["predicted_letter"],
-        "confidence": result["confidence"],
-        "is_correct": is_correct
+        **result,
+        "is_correct": is_correct,
     }
+
+# ──────────────────────────────────────────────────────────────
+#  BLOCK B –  PALABRAS  (vídeo .mp4 de ~30 frames)             │
+# ──────────────────────────────────────────────────────────────
+WORD_MODEL_PATH   = "models/words/runs/2025-07-05_165349/best_model.keras"
+ENCODER_PATH      = "models/words/runs/2025-07-05_165349//label_encoder.pkl"
+MAX_FRAMES, N_FEAT = 30, 150
+
+word_model   = load_model(WORD_MODEL_PATH, compile=False)
+label_encoder= pickle.load(open(ENCODER_PATH,"rb"))
+mp_holistic  = mp.solutions.holistic
+holistic     = mp_holistic.Holistic(static_image_mode=False, model_complexity=1)
+
+def _flatten(lm,n): return [c for p in lm.landmark for c in (p.x,p.y)] if lm else [0.0]*(n*2)
+def _video_to_seq(path:str)->np.ndarray:
+    cap, seq = cv2.VideoCapture(path), []
+    while len(seq)<MAX_FRAMES:
+        ok, fr = cap.read()
+        if not ok: break
+        res = holistic.process(cv2.cvtColor(fr,cv2.COLOR_BGR2RGB))
+        seq.append(_flatten(res.pose_landmarks,33)+
+                   _flatten(res.left_hand_landmarks,21)+
+                   _flatten(res.right_hand_landmarks,21))
+    cap.release()
+    if len(seq)<MAX_FRAMES: seq+=[[0.0]*N_FEAT]*(MAX_FRAMES-len(seq))
+    return np.array(seq[:MAX_FRAMES],np.float32)
+
+def _bytes_to_temp(file)->str:
+    tmp=tempfile.NamedTemporaryFile(delete=False,suffix=".mp4")
+    file.seek(0); tmp.write(file.read()); tmp.close(); return tmp.name
+
+def preprocess_video(file):
+    path=_bytes_to_temp(file); seq=_video_to_seq(path); os.remove(path)
+    return np.expand_dims(seq,0)
+
+def predict_word(file):
+    seq = preprocess_video(file)
+    preds=word_model.predict(seq,verbose=0)[0]
+    idx = int(np.argmax(preds))
+    return {"predicted_word": label_encoder.inverse_transform([idx])[0],
+            "confidence": float(preds[idx])}
+
+def verify_word(file, expected_word:str):
+    res = predict_word(file)
+    return {"expected_word": expected_word,
+            **res,
+            "is_correct": res["predicted_word"].lower()==expected_word.lower()}
