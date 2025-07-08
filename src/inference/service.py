@@ -7,7 +7,7 @@ import mediapipe as mp
 #  BLOCK A –  LETRAS  (imagen .jpg)                            │
 # ──────────────────────────────────────────────────────────────
 # Ruta al modelo entrenado
-MODEL_PATH = "models/letters/sign_model_v3_finetuned.keras"
+MODEL_PATH = "models/letters/sign_model_letter.h5"
 
 # Tamaño esperado por el modelo
 IMAGE_SIZE = (300, 300)
@@ -95,8 +95,8 @@ def verify_letter(file, expected_letter: str) -> dict:
 # ──────────────────────────────────────────────────────────────
 #  BLOCK B –  PALABRAS  (vídeo .mp4 de ~30 frames)             │
 # ──────────────────────────────────────────────────────────────
-WORD_MODEL_PATH   = "models/words/runs/2025-07-05_165349/best_model.keras"
-ENCODER_PATH      = "models/words/runs/2025-07-05_165349//label_encoder.pkl"
+WORD_MODEL_PATH   = "models/words/sign_model_words.h5"
+ENCODER_PATH      = "models/words/label_encoder_words.pkl"
 MAX_FRAMES, N_FEAT = 30, 150
 
 word_model   = load_model(WORD_MODEL_PATH, compile=False)

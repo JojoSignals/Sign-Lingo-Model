@@ -15,7 +15,7 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-# Copiar todo el proyecato
+# Copiar todo el proyecto
 COPY . .
 
 # Exponer el puerto por defecto de FastAPI

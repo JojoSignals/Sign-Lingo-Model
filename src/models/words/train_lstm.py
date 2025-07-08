@@ -1,5 +1,3 @@
-# train_lstm.py
-
 import os
 import pickle
 import time

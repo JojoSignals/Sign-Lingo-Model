@@ -5,7 +5,7 @@ from tensorflow.keras.models import load_model
 
 # === CONFIGURATION ===
 MAX_FRAMES    = 30
-MODEL_PATH    = "models/words/runs/2025-07-05_165349/best_model.keras"
+MODEL_PATH    = "models/words/sign_model_words.h5"
 ENCODER_PATH  = "models/words/runs/2025-07-05_165349/label_encoder.pkl"
 
 LM_MIN_VALID  = 50          # descarta frames con <50 landmarks “buenos”
